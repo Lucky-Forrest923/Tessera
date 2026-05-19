@@ -1,0 +1,60 @@
+# Ignore compiled output files
+*.o
+*.out
+*.exe
+*.class
+*.jar
+*.pyc
+*.pyo
+*.pdb
+*.ilk
+*.dSYM/
+*.dSYM
+*.dSYM/*
+
+# Ignore build directories
+output/
+C/output/
+Java/lab2/target/
+Java/lab3/target/
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+*.log
+*.csv
+
+# Ignore LaTeX auxiliary files
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+
+# Ignore Java Maven files
+target/
+*.iml
+.idea/
+
+# Ignore macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Ignore other system files
+Thumbs.db
+Desktop.ini
+
+# Ignore user-specific files
+*.env
+*.vscode/
+*.code-workspace
