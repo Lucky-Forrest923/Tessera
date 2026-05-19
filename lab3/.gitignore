@@ -1,0 +1,55 @@
+# macOS-specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon files
+Icon\r
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.Spotlight-V100
+.Trashes
+
+# macOS metadata files
+.fseventsd
+.VolumeIcon.icns
+
+# Temporary files
+.TemporaryItems
+.apdisk
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+out/
+
+# Java-specific files
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Logs
+*.log
+
+# Build directories
+target/
+bin/
+
+# Maven
+.mvn/
+
+# Gradle
+.gradle/
+build/
+
+# Node.js
+node_modules/

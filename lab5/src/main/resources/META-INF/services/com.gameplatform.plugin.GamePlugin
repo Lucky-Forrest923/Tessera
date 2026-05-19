@@ -1,0 +1,5 @@
+com.gameplatform.plugin.PeacePlugin
+com.gameplatform.plugin.ReversiPlugin
+com.gameplatform.plugin.MinesweeperPlugin
+com.gameplatform.plugin.ChessPlugin
+
