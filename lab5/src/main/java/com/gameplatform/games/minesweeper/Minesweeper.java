@@ -119,6 +119,15 @@ public class Minesweeper extends BaseGame {
 
     @Override
     public List<DemoStep> getDemoSteps() {
+        // 演示前预置固定雷场，确保演示路径绝对安全
+        if (!field.isMinesGenerated()) {
+            field.generateFixedMines(List.of(
+                    new Position(0, 0), new Position(0, 3), new Position(0, 5),
+                    new Position(1, 6), new Position(2, 0), new Position(3, 3),
+                    new Position(4, 6), new Position(5, 2), new Position(6, 5),
+                    new Position(7, 0)
+            ));
+        }
         return List.of(
                 new DemoStep("b2", "首开b2——系统保证第一次翻开不为雷"),
                 new DemoStep("b3", "翻开b3——显示相邻雷数"),
@@ -151,10 +160,6 @@ public class Minesweeper extends BaseGame {
         return List.of(MinesweeperTexts.COMMAND_OPEN, MinesweeperTexts.COMMAND_FLAG, MinesweeperTexts.COMMAND_NOTE);
     }
 
-    @Override
-    public List<Position> getLegalMoves() {
-        return List.of();
-    }
 
     @Override
     public String getCellChar(int row, int col) {

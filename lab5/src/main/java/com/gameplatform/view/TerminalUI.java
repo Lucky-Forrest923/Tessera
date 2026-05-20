@@ -12,6 +12,7 @@ import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import com.gameplatform.model.BaseGame;
 import com.gameplatform.model.Position;
 import com.gameplatform.model.TurnBasedGame;
+import com.gameplatform.model.HintProvider;
 import com.gameplatform.text.GameTexts;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ public class TerminalUI implements AutoCloseable {
         drawBox(leftW + 1, boxTop, midW, boxHeight, GameTexts.STATUS_BOX_TITLE);
         drawBox(leftW + midW + 2, boxTop, rightW, boxHeight, GameTexts.GAME_LIST_BOX_TITLE);
 
-        drawBoardInBox(game, 2, boxTop + 2, boxHeight - 4);
+        drawBoardInBox(game, boxTop + 2, boxHeight - 4);
         drawStatusInBox(game, leftW + 3, boxTop + 1, midW - 4, boxHeight - 2, currentNum, message, isError, addableTypes);
         drawGameListInBox(allGames, leftW + midW + 4, boxTop + 1, rightW - 4, boxHeight - 2, currentNum);
 
@@ -86,23 +87,25 @@ public class TerminalUI implements AutoCloseable {
         tg.putString(x + 2, y, title);
     }
 
-    private void drawBoardInBox(BaseGame game, int x, int y, int maxHeight) {
+    private void drawBoardInBox(BaseGame game, int y, int maxHeight) {
         int size = game.getSize();
         StringBuilder colHeader = new StringBuilder("  ");
         for (int i = 0; i < size; i++) colHeader.append((char) ('a' + i)).append(" ");
-        putString(x, y, colHeader.toString(), CYAN);
+        putString(2, y, colHeader.toString(), CYAN);
 
-        List<Position> legalMoves = game.showLegalMovesAsHints() ? game.getLegalMoves() : List.of();
+        List<Position> legalMoves = game instanceof HintProvider hp && hp.showLegalMovesAsHints()
+                ? hp.getLegalMoves()
+                : List.of();
 
         for (int r = 0; r < size; r++) {
             if (r + 1 >= maxHeight) break;
             int rowY = y + 1 + r;
-            putString(x, rowY, (r + 1) + " ", CYAN);
+            putString(2, rowY, (r + 1) + " ", CYAN);
             for (int c = 0; c < size; c++) {
                 boolean isHint = legalMoves.contains(new Position(r, c));
                 String cell = isHint ? "+ " : game.getCellChar(r, c);
                 TextColor color = isHint ? CYAN : WHITE;
-                putString(x + 2 + c * 2, rowY, cell, color);
+                putString(2 + 2 + c * 2, rowY, cell, color);
             }
         }
     }

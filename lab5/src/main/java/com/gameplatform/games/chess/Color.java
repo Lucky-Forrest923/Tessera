@@ -1,5 +1,5 @@
 package com.gameplatform.games.chess;
 
 public enum Color {
-    BLACK, WHITE, NONE;
+    BLACK, WHITE, NONE
 }

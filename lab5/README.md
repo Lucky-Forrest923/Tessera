@@ -1,10 +1,11 @@
-# Lab4：终端小游戏平台
+# Lab5：终端小游戏平台
 
-这是一个基于 Java + Maven + Lanterna 的终端小游戏平台，支持三个游戏模式：
+这是一个基于 **Java + Maven + Lanterna** 的终端小游戏平台，当前支持 4 种游戏：
 
-- `peace`：空白棋
+- `peace`：和平棋
 - `reversi`：黑白棋 / 翻转棋
 - `minesweeper`：扫雷
+- `chess`：国际象棋
 
 程序采用左-中-右三栏布局：
 
@@ -41,20 +42,20 @@ mvn -q exec:java
 
 ---
 
-## 3. 界面说明
+## 3. 项目概览
 
-程序启动后会默认创建 3 局游戏：
+本项目使用 **SPI** 自动加载游戏插件：
 
-1. `peace`
-2. `reversi`
-3. `minesweeper`
+- 入口通过 `ServiceLoader<GamePlugin>` 加载所有实现
+- 默认会创建各插件声明为默认局的游戏
+- 当前仓库中的 4 个插件都标记为默认游戏，因此启动后会自动创建 4 局
 
-默认进入第 1 局。
+启动后默认进入第 1 局。
 
 界面中：
 
 - **左侧棋盘**：显示当前局的棋盘内容
-- **中间状态栏**：显示当前游戏编号、当前回合、模式特有信息、最后一条提示、操作说明
+- **中间状态栏**：显示当前游戏编号、当前回合、模式特有信息、最近消息、操作说明
 - **右侧列表**：显示所有游戏局号、类型和状态
 
 当前游戏结束后，状态栏仍会保留最终结束提示，不会被后续输入覆盖。
@@ -65,7 +66,7 @@ mvn -q exec:java
 
 输入完成后按 **Enter** 提交，**Backspace** 删除字符。
 
-### 4.1 落子 / 翻开
+### 4.1 坐标输入
 
 支持以下坐标格式：
 
@@ -91,10 +92,11 @@ mvn -q exec:java
 - `peace`
 - `reversi`
 - `minesweeper`
+- `chess`
 
 新增后不会自动切换到新局，需要手动输入编号切换。
 
-### 4.4 插旗（仅扫雷）
+### 4.4 扫雷插旗
 
 支持以下格式：
 
@@ -105,7 +107,7 @@ mvn -q exec:java
 
 再次对同一格输入插旗命令可取消旗子。
 
-### 4.5 pass（仅黑白棋）
+### 4.5 黑白棋 pass
 
 - `pass`
 
@@ -116,11 +118,18 @@ mvn -q exec:java
 
 - `quit`
 
+### 4.7 演示模式
+
+- `demo`
+
+`demo` 会依次自动演示各个游戏的预设步骤。
+演示过程中按任意键可以中断并返回手动模式。
+
 ---
 
-## 5. 三种游戏玩法
+## 5. 游戏说明
 
-## 5.1 `peace`：空白棋
+## 5.1 `peace`：和平棋
 
 这是一个最基础的轮流落子模式。
 
@@ -185,11 +194,38 @@ mvn -q exec:java
 
 ---
 
+## 5.4 `chess`：国际象棋
+
+国际象棋模式支持：
+
+- 棋盘大小固定为 `8 x 8`
+- 标准棋子初始布局
+- 轮流走子
+- 兵的双步、吃过路兵、升变
+- 王车易位
+- 合法性检查与将军判定
+
+落子命令：
+
+- `m e2 e4`
+- `move e2 e4`
+- 升变时可附加目标棋子：`q` / `r` / `b` / `n`
+
+例如：
+
+```text
+m b2 c1 q
+```
+
+表示兵升变为后。
+
+---
+
 ## 6. 多对局管理
 
 程序支持同时维护多局游戏。
 
-- 启动时默认有 3 局：`peace`、`reversi`、`minesweeper`
+- 启动时默认创建 4 局默认游戏：`peace`、`reversi`、`minesweeper`、`chess`
 - 输入游戏类型名可以继续新增同类或其他类型的局
 - 切换棋盘时，当前局状态会完整保留
 - 右侧列表会显示每一局的状态：
@@ -205,6 +241,7 @@ mvn -q exec:java
 - `pass` 只适用于 `reversi`
 - 扫雷的插旗只能作用于未翻开格子
 - 游戏结束后再次输入操作，只会提示该局已结束，不会覆盖原有结束信息
+- `demo` 运行期间，任意键可中断演示并恢复手动操作
 
 ---
 
@@ -212,15 +249,17 @@ mvn -q exec:java
 
 主要代码位于：
 
-- `src/main/java/com/othello/Main.java`
-- `src/main/java/com/othello/controller/GameController.java`
-- `src/main/java/com/othello/model/`
-- `src/main/java/com/othello/view/TerminalUI.java`
-- `src/main/java/com/othello/text/GameTexts.java`
+- `src/main/java/com/gameplatform/Main.java`
+- `src/main/java/com/gameplatform/controller/GameController.java`
+- `src/main/java/com/gameplatform/model/`
+- `src/main/java/com/gameplatform/view/TerminalUI.java`
+- `src/main/java/com/gameplatform/text/GameTexts.java`
+- `src/main/java/com/gameplatform/games/`
+- `src/main/resources/META-INF/services/com.gameplatform.plugin.GamePlugin`
 
 ---
 
 ## 9. 总结
 
-这是一个支持 **多局管理**、**动态新增**、**统一输入**、**黑白棋 / 扫雷 / 空白棋** 三种模式的终端小游戏平台。
+这是一个支持 **多局管理**、**SPI 插件加载**、**动态新增**、**统一输入**、**demo 演示**，并包含 **和平棋 / 黑白棋 / 扫雷 / 国际象棋** 四种模式的终端小游戏平台。
 

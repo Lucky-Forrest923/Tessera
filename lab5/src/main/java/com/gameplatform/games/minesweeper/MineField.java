@@ -2,6 +2,7 @@ package com.gameplatform.games.minesweeper;
 
 import com.gameplatform.model.Position;
 
+import java.util.List;
 import java.util.Random;
 
 public class MineField {
@@ -48,6 +49,19 @@ public class MineField {
             if (mines[r][c]) continue;
             mines[r][c] = true;
             minesPlaced++;
+        }
+        minesGenerated = true;
+    }
+
+    /**
+     * 演示模式专用：按固定坐标布雷，避免随机踩雷导致演示失败。
+     */
+    public void generateFixedMines(List<Position> minePositions) {
+        if (minesGenerated) return;
+        for (Position p : minePositions) {
+            if (!isOutOfBounds(p.row(), p.col())) {
+                mines[p.row()][p.col()] = true;
+            }
         }
         minesGenerated = true;
     }

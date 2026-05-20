@@ -75,17 +75,6 @@ public class MultiBoardManager {
         return currentIndex + 1;
     }
 
-    public boolean selectByType(String type) {
-        if (type == null) return false;
-        for (int i = 0; i < games.size(); i++) {
-            if (type.equalsIgnoreCase(games.get(i).getType())) {
-                currentIndex = i;
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void resetToDefaults(int size) {
         games.clear();
         if (registry != null) {

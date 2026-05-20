@@ -1,18 +1,11 @@
 package com.gameplatform.games.othello;
 
-import com.gameplatform.model.BaseGame;
 import com.gameplatform.model.Position;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class PeaceGame extends OthelloGame {
-
-    private static final Set<Position> INITIAL_OCCUPIED = Set.of(
-            new Position(3, 3), new Position(3, 4),
-            new Position(4, 3), new Position(4, 4)
-    );
 
     public PeaceGame(int size) {
         super(size);
@@ -51,18 +44,6 @@ public class PeaceGame extends OthelloGame {
         return true;
     }
 
-    @Override
-    public List<Position> getLegalMoves() {
-        List<Position> moves = new ArrayList<>();
-        for (int r = 0; r < board.getSize(); r++) {
-            for (int c = 0; c < board.getSize(); c++) {
-                if (!board.isOccupied(r, c)) {
-                    moves.add(new Position(r, c));
-                }
-            }
-        }
-        return moves;
-    }
 
     @Override
     public List<DemoStep> getDemoSteps() {
@@ -73,8 +54,8 @@ public class PeaceGame extends OthelloGame {
                 {3, 5}, {4, 2}, {2, 6}, {5, 1},  // 中间区域
                 {1, 1}, {6, 6}                    // 近角
         };
-        for (int i = 0; i < positions.length; i++) {
-            int r = positions[i][0], c = positions[i][1];
+        for (int[] position : positions) {
+            int r = position[0], c = position[1];
             char colChar = (char) ('a' + c);
             String cmd = "" + colChar + (r + 1);
             String explanation = String.format("轮流落子：%s", cmd);

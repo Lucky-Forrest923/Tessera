@@ -59,8 +59,6 @@ public abstract class BaseGame {
 
     public abstract String getCellChar(int row, int col);
 
-    public abstract List<Position> getLegalMoves();
-
     /**
      * 返回本游戏的 Demo 自动演示步骤（命令 + 讲解）。
      * 每条命令必须是可被 processCommand() 直接消费的合法输入。
@@ -76,12 +74,6 @@ public abstract class BaseGame {
         return 1200;
     }
 
-    /**
-     * 是否在 UI 上用 + 号高亮显示当前所有合法落子点
-     */
-    public boolean showLegalMovesAsHints() {
-        return false;
-    }
 
     /**
      * 辅助工具方法：解析 a1 或 1a 格式的坐标

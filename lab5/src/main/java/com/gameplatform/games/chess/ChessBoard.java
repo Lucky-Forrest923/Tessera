@@ -37,7 +37,7 @@ public class ChessBoard {
     public void initializeStandardSetup() {
         clear();
         if (size >= 8) {
-            // Black pieces
+            // Black pieces — back rank at row 0 (top of display)
             cells[0][0] = ChessPiece.BROOK;
             cells[0][1] = ChessPiece.BKNIGHT;
             cells[0][2] = ChessPiece.BBISHOP;
@@ -47,7 +47,7 @@ public class ChessBoard {
             cells[0][6] = ChessPiece.BKNIGHT;
             cells[0][7] = ChessPiece.BROOK;
             for (int c = 0; c < 8; c++) cells[1][c] = ChessPiece.BPAWN;
-            // White pieces
+            // White pieces — back rank at row 7 (bottom of display)
             for (int c = 0; c < 8; c++) cells[6][c] = ChessPiece.WPAWN;
             cells[7][0] = ChessPiece.WROOK;
             cells[7][1] = ChessPiece.WKNIGHT;

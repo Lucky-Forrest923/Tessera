@@ -9,7 +9,6 @@ import java.util.List;
 
 public class GameController {
     private static final int DEFAULT_SIZE = 8;
-    private static final int DEMO_POLL_INTERVAL_MS = 50;
     private static final int DEMO_GAME_SWITCH_DELAY_MS = 1500; // 切换游戏提示停留时间
     private final TerminalUI ui;
     private final MultiBoardManager manager;
@@ -174,16 +173,14 @@ public class GameController {
                 BaseGame nextGame = games.get(demoGameIndex);
                 platformMessage = "游戏「" + currentGame.getDisplayName() + "」无演示步骤，已跳过。切换到「" + nextGame.getDisplayName() + "」";
                 platformMessageIsError = false;
-                demoStepIndex = -1; // 下一个游戏同样需要开始提示
-                demoNextStepAt = System.currentTimeMillis() + DEMO_GAME_SWITCH_DELAY_MS;
-                return false;
+                demoStepIndex = -1;
             } else {
                 platformMessage = "开始演示：「" + currentGame.getDisplayName() + "」";
                 platformMessageIsError = false;
                 demoStepIndex = 0;
-                demoNextStepAt = System.currentTimeMillis() + DEMO_GAME_SWITCH_DELAY_MS;
-                return false;
             }
+            demoNextStepAt = System.currentTimeMillis() + DEMO_GAME_SWITCH_DELAY_MS;
+            return false;
         }
 
         // 当前游戏演示完毕，切换到下一个
@@ -195,7 +192,7 @@ public class GameController {
             }
             manager.select(demoGameIndex + 1);
             BaseGame nextGame = games.get(demoGameIndex);
-            platformMessage = "🎮 演示完成：「" + currentGame.getDisplayName() + "」。切换到下一个游戏：「" + nextGame.getDisplayName() + "」";
+            platformMessage = "演示完成：「" + currentGame.getDisplayName() + "」。切换到下一个游戏：「" + nextGame.getDisplayName() + "」";
             platformMessageIsError = false;
             demoNextStepAt = System.currentTimeMillis() + DEMO_GAME_SWITCH_DELAY_MS;
             return false;

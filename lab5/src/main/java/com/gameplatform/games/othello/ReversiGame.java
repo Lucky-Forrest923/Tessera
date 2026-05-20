@@ -1,11 +1,12 @@
 package com.gameplatform.games.othello;
 
+import com.gameplatform.model.HintProvider;
 import com.gameplatform.model.Position;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReversiGame extends OthelloGame {
+public class ReversiGame extends OthelloGame implements HintProvider {
     private static final int[][] DIRS = {
             {-1, -1}, {-1, 0}, {-1, 1},
             {0, -1},           {0, 1},
