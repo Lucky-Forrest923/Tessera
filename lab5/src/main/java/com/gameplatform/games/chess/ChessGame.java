@@ -282,7 +282,7 @@ public class ChessGame extends BaseGame implements TurnBasedGame {
                         null, false, false, false, isPromotion, null));
                 // 直走两步（起始位置）
                 int nr2 = fr + 2 * dir;
-                if (fr == startRow && !isOutOfBounds(nr2, nc) && board.get(nr2, nc).isEmpty()) {
+                if (fr == startRow && !isOutOfBounds(nr2, nc) && board.get(nr, nc).isEmpty() && board.get(nr2, nc).isEmpty()) {
                     candidates.add(new MoveCandidate(piece, new Position(fr, fc), new Position(nr2, nc),
                             null, true, false, false, false, null));
                 }
@@ -452,7 +452,7 @@ public class ChessGame extends BaseGame implements TurnBasedGame {
                     if (rookFromC == size - 1) blackRightRookMoved = true;
                 }
             } else {
-                // 长易位：车从 a 列移动到 d 列 (列索引 0 -> 3)
+                // 长易位：车从 a 列移动到 d 列
                 int rookFromC = 0;
                 int rookToC = tc + 1;
                 board.set(fr, rookToC, board.get(fr, rookFromC));

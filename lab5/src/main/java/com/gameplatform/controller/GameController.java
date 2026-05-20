@@ -75,7 +75,7 @@ public class GameController {
         }
     }
 
-    private boolean handleEnter(BaseGame game) throws Exception {
+    private boolean handleEnter(BaseGame game) {
         String cmd = inputBuffer.toString().trim();
         inputBuffer.setLength(0);
         platformMessage = "";
