@@ -1,0 +1,333 @@
+@startuml
+' ============================================================
+'  Lab6 UML 类图 — 横屏 A4 打印
+'  展示: 插件架构 / TUI-GUI 复用 / MVC / Strategy
+' ============================================================
+
+skinparam shadowing false
+skinparam defaultFontName sans-serif
+skinparam defaultFontSize 11
+skinparam backgroundColor white
+skinparam nodesep 30
+skinparam ranksep 30
+left to right direction
+
+' ——— 颜色 & 样式 ———
+skinparam package {
+    BorderColor #2c3e50
+    HeaderBackgroundColor #2c3e50
+    HeaderFontColor white
+    HeaderFontSize 12
+    FontColor #2c3e50
+}
+skinparam interface {
+    BorderColor #2980b9
+    HeaderBackgroundColor #2980b9
+    HeaderFontColor white
+}
+skinparam abstract {
+    BorderColor #8e44ad
+    HeaderBackgroundColor #8e44ad
+    HeaderFontColor white
+}
+skinparam class {
+    BorderColor #27ae60
+    HeaderBackgroundColor #27ae60
+    HeaderFontColor white
+}
+skinparam arrow {
+    Color #2c3e50
+    FontSize 10
+}
+
+' ============================================================
+'  PACKAGE: plugin (SPI 插件架构)
+' ============================================================
+package "plugin (SPI 插件架构)" as PLUGIN_PKG {
+
+    interface "GamePlugin" as GP <<interface>> {
+        + getTypeId() : String
+        + getDisplayName() : String
+        + createGame(int size) : BaseGame
+        + isDefaultGame() : boolean
+    }
+
+    class "GamePluginRegistry" as GPR {
+        - plugins : Map<String, GamePlugin>
+        + register(GamePlugin) : void
+        + has(typeId) : boolean
+        + get(typeId) : GamePlugin
+        + listTypeIds() : Set<String>
+        + listDefaultTypeIds() : Set<String>
+    }
+
+    class "ChessPlugin"
+    class "MinesweeperPlugin"
+    class "PeacePlugin"
+    class "ReversiPlugin"
+}
+
+' ============================================================
+'  PACKAGE: model (纯领域逻辑 — UI 无关，TUI/GUI 共用)
+' ============================================================
+package "model" as MODEL_PKG {
+
+    abstract class "BaseGame" as BG {
+        # size : int
+        # over : boolean
+        # statusMessage : String
+        # statusIsError : boolean
+        {abstract} + processCommand(String cmd) : boolean
+        {abstract} + getCellChar(int row, int col) : char
+        {abstract} + getAvailableCommands() : String[]
+        {abstract} + getExtraStatusLines() : String[]
+        {abstract} + getType() : String
+        {abstract} + getDisplayName() : String
+        + onCellClick(int row, int col) : boolean
+        + supportsPass() / supportsFlag() : boolean
+        + prepareDemo() : void
+        + getDemoSteps() : List<DemoStep>
+        + getDemoStepDelayMs() : long
+        + createRenderer() : GamePanelRenderer
+        + parsePosition(String) : Position
+    }
+
+    interface "TurnBasedGame" as TBG <<interface>> {
+        + getPlayerCount() : int
+        + getCurrentPlayerIndex() : int
+        + getPlayerName(int) : String
+    }
+
+    interface "HintProvider" as HP <<interface>> {
+        + showLegalMovesAsHints() : boolean
+        + getLegalMoves() : List<Position>
+    }
+
+    class "MultiBoardManager" as MBM {
+        - games : List<BaseGame>
+        - activeIndex : int
+        + add(type, size) : void
+        + select(number) : void
+        + remove(number) : void
+        + getActive() : BaseGame
+        + getGames() : List<BaseGame>
+        + getCurrentBoardNumber() : int
+        + getAddableGameTypes() : Set<String>
+        + resetToDefaults() : void
+    }
+
+    class "Position" as POS <<record>> {
+        + row : int
+        + col : int
+    }
+
+    ' ——— 具体游戏 ———
+    class "ChessGame" as CG {
+        - board : ChessBoard
+        - moveLog : List<ChessMove>
+        - currentPlayer : PieceColor
+    }
+
+    class "Minesweeper" as MS {
+        - mineField : MineField
+        - firstClick : boolean
+    }
+
+    abstract class "OthelloGame" as OTH {
+        # board : Board
+        # currentPlayer : Piece
+        # blackScore : int
+        # whiteScore : int
+        {abstract} # doPlay(Position) : void
+    }
+
+    class "ReversiGame" as RG
+    class "PeaceGame" as PG
+}
+
+' ============================================================
+'  PACKAGE: renderer (Strategy 模式 — JavaFX 专属)
+' ============================================================
+package "renderer (Strategy)" as RENDER_PKG {
+
+    interface "GamePanelRenderer" as GPR2 <<interface>> {
+        + renderCell(game, row, col, isHint, ctx) : StackPane
+        + clearSelection() : void
+        + getRuleText() : String
+        {static} + coordToCmd(row, col) : String
+    }
+
+    class "CellClickContext" as CCC {
+        + refreshAll : Runnable
+        + refreshBoard : Runnable
+        + refreshStatus : Runnable
+        + setStatus : Consumer<String>
+        + isFlagMode : Supplier<Boolean>
+        + handleCellClick : CellClickHandler
+    }
+
+    class "DefaultGamePanelRenderer"
+    class "ChessRenderer" as CR {
+        - selectedRow, selectedCol : int
+    }
+    class "MinesweeperRenderer"
+    class "OthelloStyleRenderer"
+}
+
+' ============================================================
+'  PACKAGE: controller (MVC)
+' ============================================================
+package "controller (MVC)" as CTRL_PKG {
+
+    class "GamePlatformController" as GPC {
+        - boardManager : MultiBoardManager
+        - rendererCache : Map<BaseGame, GamePanelRenderer>
+        + getActiveGame() : BaseGame
+        + getGames() : List<BaseGame>
+        + getCurrentBoardNumber() : int
+        + getAvailableGameTypes() : Set<String>
+        + createGame(type, size) : void
+        + selectGame(number) / pass() / removeGame(number) : void
+        + handleCellClick(row, col) : void
+        + dispatchCommand(String input) : CommandResult
+    }
+}
+
+' ============================================================
+'  PACKAGE: view (JavaFX GUI — 现有)
+' ============================================================
+package "view (现有 JavaFX GUI)" as VIEW_PKG {
+
+    class "JavaFXAPP" as JFX {
+        - controller : GamePlatformController
+        - boardPanel : GridPane
+        + start(Stage) : void
+        - refreshAll() / refreshBoard() / refreshStatus() : void
+        - onCellClick(row, col) : void
+        - startDemo() : void
+    }
+}
+
+' ============================================================
+'  PACKAGE: view (未来 TUI — 同样复用 model / controller)
+' ============================================================
+package "view (未来 TUI — 复用相同 model)" as TUI_PKG {
+
+    class "ConsoleApp (示意)" as TUI {
+        + main(String[]) : void
+        - controller : GamePlatformController
+        - printBoard() : void
+        - readAndDispatch() : void
+        + run() : void
+    }
+}
+
+' ============================================================
+'  PACKAGE: 启动
+' ============================================================
+package "启动" as BOOT {
+    class "Main"
+}
+
+' ============================================================
+'  ═══ 关 系 ═══
+' ============================================================
+
+' --- plugin ---
+GP <|.. ChessPlugin : 实现
+GP <|.. MinesweeperPlugin : 实现
+GP <|.. PeacePlugin : 实现
+GP <|.. ReversiPlugin : 实现
+GPR o-- GP : 注册管理
+GP ..> BG : createGame(size)
+Main ..> GPR : 创建
+Main ..> GP : ServiceLoader 加载
+Main ..> MBM : 创建
+Main ..> JFX : launch
+
+' --- model 继承 ---
+BG <|-- CG : 继承
+BG <|-- MS : 继承
+BG <|-- OTH : 继承
+OTH <|-- RG : 继承
+OTH <|-- PG : 继承
+
+' --- interface 实现 ---
+CG ..|> TBG : 实现
+OTH ..|> TBG : 实现
+RG ..|> HP : 实现
+
+' --- model 关联 ---
+MBM o-- BG : 管理 List<BaseGame>
+CG *-- POS : 引用
+MS *-- POS : 引用
+BG *-- POS : parsePosition()
+
+' --- renderer ---
+GPR2 <|.. DefaultGamePanelRenderer : 实现
+GPR2 <|.. CR : 实现
+GPR2 <|.. MinesweeperRenderer : 实现
+GPR2 <|.. OthelloStyleRenderer : 实现
+BG ..> GPR2 : createRenderer() (工厂)
+CCC o-- GPR2 : 传递回调
+
+' --- controller ---
+GPC --> MBM : 委托
+GPC o-- GPR2 : 缓存 Map
+
+' --- view → controller ---
+JFX --> GPC : 调用
+JFX ..> CCC : 构造并传入回调
+TUI --> GPC : 调用 (同样复用 !)
+TUI ..> BG : 直接调用 getCellChar / processCommand
+
+' ============================================================
+'  ═══ 标注 — 架构要点 ═══
+' ============================================================
+
+note right of GP
+  **插件架构 (SPI)** :
+  • ServiceLoader 自动发现
+  • META-INF/services 注册
+  • 新增游戏只需:
+    实现 GamePlugin +
+    BaseGame 子类 + 注册
+end note
+
+note top of BG
+  **TUI / GUI 代码复用** :
+  BaseGame 纯领域逻辑,
+  无 JavaFX / TUI 依赖。
+  ⇒ processCommand / getCellChar
+  等抽象方法对两种 UI 一致。
+  ⇒ 未来 TUI(ConsoleApp) 可调用
+  相同 controller + model，
+  只需实现自己的打印逻辑。
+end note
+
+note bottom of GPR2
+  **Strategy 模式** :
+  每种游戏提供独立渲染策略，
+  由 BaseGame.createRenderer()
+  工厂方法决定。
+end note
+
+note bottom of GPC
+  **MVC 控制器** :
+  协调 Model ↔ View，
+  缓存 Renderer 实例，
+  统一处理命令分发
+  与鼠标/键盘事件。
+end note
+
+note right of TUI
+  **代码复用验证** :
+  ConsoleApp (示意) 证明
+  TUI 可直接复用:
+  • GamePlatformController
+  • BaseGame 全部子类
+  • MultiBoardManager
+  只需替换 UI 渲染层
+end note
+
+@enduml

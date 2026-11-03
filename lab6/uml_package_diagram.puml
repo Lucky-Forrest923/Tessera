@@ -1,0 +1,108 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName sans-serif
+skinparam defaultFontSize 10
+skinparam backgroundColor white
+skinparam nodesep 15
+skinparam ranksep 15
+hide members
+left to right direction
+
+skinparam package {
+    BorderColor #2c3e50
+    HeaderBackgroundColor #2c3e50
+    HeaderFontColor white
+}
+skinparam interface {
+    BorderColor #2980b9
+    HeaderBackgroundColor #2980b9
+    HeaderFontColor white
+}
+skinparam abstract {
+    BorderColor #8e44ad
+    HeaderBackgroundColor #8e44ad
+    HeaderFontColor white
+}
+skinparam class {
+    BorderColor #27ae60
+    HeaderBackgroundColor #27ae60
+    HeaderFontColor white
+}
+skinparam arrow {
+    Color #2c3e50
+    FontSize 9
+}
+
+' ==================== PACKAGES ====================
+
+package "plugin (SPI)" as PLUGIN {
+    interface "GamePlugin" as GP
+    class "GamePluginRegistry" as GPR
+    class "ChessPlugin"
+    class "MinesweeperPlugin"
+    class "ReversiPlugin"
+    class "PeacePlugin"
+}
+
+package "model (纯领域逻辑)" as MODEL {
+    abstract class "BaseGame" as BG
+    interface "TurnBasedGame" as TBG
+    interface "HintProvider" as HP
+    class "MultiBoardManager" as MBM
+    class "ChessGame"
+    class "Minesweeper"
+    class "OthelloGame" as OTH
+    class "ReversiGame"
+    class "PeaceGame"
+}
+
+package "renderer (策略)" as RENDER {
+    interface "GamePanelRenderer" as GPR2
+    class "DefaultGamePanelRenderer"
+    class "ChessRenderer"
+    class "MinesweeperRenderer"
+    class "OthelloStyleRenderer"
+}
+
+package "controller" as CTRL {
+    class "GamePlatformController" as GPC
+}
+
+package "view" as VIEW {
+    class "JavaFXAPP" as JFX
+}
+
+' ==================== RELATIONSHIPS ====================
+
+GP <|.. ChessPlugin
+GP <|.. MinesweeperPlugin
+GP <|.. ReversiPlugin
+GP <|.. PeacePlugin
+GPR o-- GP : 注册
+GP ..> BG : createGame
+
+BG <|-- ChessGame
+BG <|-- Minesweeper
+BG <|-- OthelloGame
+BG <|.. TBG
+BG <|.. HP
+OTH <|-- ReversiGame
+OTH <|-- PeaceGame
+
+MBM o-- BG : 管理
+
+BG ..> GPR2 : createRenderer
+GPR2 <|.. DefaultGamePanelRenderer
+GPR2 <|.. ChessRenderer
+GPR2 <|.. MinesweeperRenderer
+GPR2 <|.. OthelloStyleRenderer
+
+GPC --> MBM : 委托
+GPC --> GPR2 : 缓存
+JFX --> GPC : 调用
+
+note top of GP : 插件架构：SPI注册即可扩展
+note bottom of BG : TUI/GUI复用：纯逻辑，Renderer解耦
+note right of GPC : MVC控制器
+
+@enduml
